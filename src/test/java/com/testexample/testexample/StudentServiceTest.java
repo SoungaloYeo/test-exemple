@@ -14,11 +14,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
 class StudentServiceTest {
+    public static final Long STUDENT_ID = 25L;
     private StudentService studentService;
 
     @Mock
@@ -33,8 +35,6 @@ class StudentServiceTest {
         studentOne = Student.builder().email("one@gmail.com").gender(Gender.MALE).name("Karl").build();
         studentTwo = Student.builder().email("two@gmail.com").gender(Gender.FEMALE).name("Max").build();
 
-        when(studentRepository.findAll()).thenReturn(Arrays.asList(studentOne, studentTwo));
-
         studentService = new StudentService(studentRepository);
     }
 
@@ -42,6 +42,7 @@ class StudentServiceTest {
     @DisplayName("trying to read all MALE students it's  Ok and return One student")
     void canGetAllStudents() {
 
+        when(studentRepository.findAll()).thenReturn(Arrays.asList(studentOne, studentTwo));
         var allStudents = this.studentService.getAllStudents();
 
         Assertions.assertAll(
@@ -51,6 +52,16 @@ class StudentServiceTest {
         );
     }
 
+    @Test
+    @DisplayName("when deleting a existing student")
+    void whenDeletingAExistingStudent() {
 
+        studentOne.setId(STUDENT_ID);
+        when(studentRepository.existsById(STUDENT_ID)).thenReturn(Boolean.TRUE);
+        doNothing().when(studentRepository).deleteById(isA(Long.class));
+
+        studentService.deleteStudent(STUDENT_ID);
+        verify(studentRepository, times(1)).deleteById(STUDENT_ID);
+    }
 
 }
