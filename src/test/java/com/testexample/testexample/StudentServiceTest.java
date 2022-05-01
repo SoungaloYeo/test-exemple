@@ -10,11 +10,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
@@ -60,10 +62,14 @@ class StudentServiceTest {
 
         studentOne.setId(STUDENT_ID);
         when(studentRepository.existsById(STUDENT_ID)).thenReturn(Boolean.TRUE);
-        doNothing().when(studentRepository).deleteById(isA(Long.class));
+
+        ArgumentCaptor<Long> valueCapture = ArgumentCaptor.forClass(Long.class);
+        doNothing().when(studentRepository).deleteById(valueCapture.capture());
 
         studentService.deleteStudent(STUDENT_ID);
         verify(studentRepository, times(1)).deleteById(STUDENT_ID);
+
+        assertEquals(STUDENT_ID, valueCapture.getValue());
     }
 
     @Test
