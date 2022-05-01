@@ -4,6 +4,7 @@ import com.testexample.testexample.student.Gender;
 import com.testexample.testexample.student.Student;
 import com.testexample.testexample.student.StudentRepository;
 import com.testexample.testexample.student.StudentService;
+import com.testexample.testexample.student.exception.StudentNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
 
@@ -62,6 +64,21 @@ class StudentServiceTest {
 
         studentService.deleteStudent(STUDENT_ID);
         verify(studentRepository, times(1)).deleteById(STUDENT_ID);
+    }
+
+    @Test
+    @DisplayName("when deleting a none existing student")
+    void whenDeletingANoneExistingStudent() {
+
+        studentOne.setId(STUDENT_ID);
+        when(studentRepository.existsById(STUDENT_ID)).thenReturn(Boolean.FALSE);
+
+
+        assertThrows(StudentNotFoundException.class, () -> {
+            studentService.deleteStudent(STUDENT_ID);
+        });
+
+        verify(studentRepository, times(0)).deleteById(STUDENT_ID);
     }
 
 }
