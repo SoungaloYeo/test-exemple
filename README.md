@@ -15,7 +15,7 @@
 - Postgres for testing (to be as production)
 
 ### Topics:
- - Use of mapstrust
+ - Use of MapStruct
  - Use of spring validators (Enum validations cases)
  - Use of Mockito in Unit testing
  - Error Handling with [@ControllerAdvice]()
