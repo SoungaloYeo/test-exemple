@@ -1,12 +1,12 @@
-package com.testexample.testexample.student.exception;
+package com.testexample.controller.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class StudentNotFoundException extends RuntimeException{
+public class SubscriberNotFoundException extends RuntimeException{
 
-    public StudentNotFoundException(String msg) {
+    public SubscriberNotFoundException(String msg) {
         super(msg);
     }
 }
