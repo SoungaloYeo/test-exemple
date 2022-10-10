@@ -70,6 +70,7 @@ class SubscriberServiceTest {
 
         subscriberService.deleteSubscriber(SUBSCRIBER_ID);
         verify(subscriberRepository, times(1)).deleteById(SUBSCRIBER_ID);
+        verify(subscriberRepository, times(1)).existsById(SUBSCRIBER_ID);
 
         assertEquals(SUBSCRIBER_ID, valueCapture.getValue());
     }
@@ -88,5 +89,6 @@ class SubscriberServiceTest {
 
         verify(subscriberRepository, times(0)).deleteById(SUBSCRIBER_ID);
     }
+
 
 }

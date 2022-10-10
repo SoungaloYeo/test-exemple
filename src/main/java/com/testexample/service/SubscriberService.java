@@ -3,6 +3,7 @@ package com.testexample.service;
 import com.testexample.controller.exception.AlreadyExistsException;
 import com.testexample.controller.exception.ErrorConstants;
 import com.testexample.controller.mapper.SubscriberMapper;
+import com.testexample.domain.Subscriber;
 import com.testexample.domain.enumeration.Type;
 import com.testexample.repository.SubscriberRepository;
 import com.testexample.service.dto.SubscriberDTO;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,6 +30,8 @@ public class SubscriberService {
 
     @Transactional(readOnly = true)
     public List<SubscriberDTO> getCardsSubscriber() {
+        var repositoryAll = subscriberRepository.findAll();
+
         return subscriberRepository.findAll()
                 .stream()
                 .filter(x -> Type.CARD.equals(x.getType()))
@@ -38,6 +42,7 @@ public class SubscriberService {
 
 
     public SubscriberDTO saveSubscriber(SubscriberDTO subscriber) {
+
         if (subscriberRepository.existsByEmailIgnoreCase(subscriber.getEmail())) {
             throw new AlreadyExistsException(String.format(ErrorConstants.E_MAIL_EXIST, subscriber.getEmail()));
         }
@@ -55,6 +60,7 @@ public class SubscriberService {
     }
 
     public void deleteSubscriber(Long id) {
+
         if (!subscriberRepository.existsById(id)) {
             throw new EntityNotFoundException(
                     "Subscriber with id " + id + " does not exists");
