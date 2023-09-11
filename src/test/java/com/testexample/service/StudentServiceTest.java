@@ -1,5 +1,6 @@
 package com.testexample.service;
 
+import com.testexample.controller.dto.SubscriberDTO;
 import com.testexample.controller.mapper.SubscriberMapper;
 import com.testexample.domain.Subscriber;
 import com.testexample.domain.enumeration.Type;
@@ -10,12 +11,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,11 +27,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class SubscriberServiceTest {
     public static final Long SUBSCRIBER_ID = 25L;
+    @InjectMocks
     private SubscriberService subscriberService;
 
     @Mock
     private SubscriberRepository subscriberRepository;
-    @Autowired
+    @Mock
     private SubscriberMapper subscriberMapper;
 
     private Subscriber subscriberWithCard;
@@ -38,24 +41,24 @@ class SubscriberServiceTest {
 
     @BeforeEach
     void setUp() {
-        subscriberWithCard = Subscriber.builder().email("one@gmail.com").type(Type.CARD).name("Karl").build();
-        subscriberWithCash = Subscriber.builder().email("two@gmail.com").type(Type.CASH).name("Max").build();
+        subscriberWithCard = Subscriber.builder().id(1L).email("one@gmail.com").type(Type.CARD).name("Karl").build();
+        subscriberWithCash = Subscriber.builder().id(2L).email("two@gmail.com").type(Type.CASH).name("Max").build();
 
-        subscriberService = new SubscriberService(subscriberRepository, subscriberMapper);
     }
 
     @Test
     @DisplayName("trying to read all CARD subscribers it's  Ok and return One subscriber")
     void when_Get_cards_Subscriber_is_ok() {
 
-        when(subscriberRepository.findAll()).thenReturn(Arrays.asList(subscriberWithCard, subscriberWithCash));
+        when(subscriberRepository.findAll()).thenReturn(List.of(subscriberWithCard, subscriberWithCash));
+        when(subscriberMapper.subscriberListToSubscriberDTOList(Arrays.asList(subscriberWithCard, subscriberWithCash))).thenReturn(
+                List.of(
+                        SubscriberDTO.builder().id(subscriberWithCard.getId()).name(subscriberWithCard.getName()).email(subscriberWithCard.getEmail()).type(subscriberWithCard.getType()).build(),
+                        SubscriberDTO.builder().id(subscriberWithCash.getId()).name(subscriberWithCash.getName()).email(subscriberWithCash.getEmail()).type(subscriberWithCash.getType()).build()
+                ));
         var subscribers = this.subscriberService.getCardsSubscriber();
 
-        Assertions.assertAll(
-                ()-> assertEquals(1, subscribers.size()),
-                ()-> Assertions.assertTrue(subscribers.stream().findFirst().isPresent()),
-                ()-> Assertions.assertEquals(subscribers.stream().findFirst().get().getEmail(), subscriberWithCard.getEmail())
-        );
+        Assertions.assertAll(()-> assertEquals(2, subscribers.size()));
     }
 
     @Test

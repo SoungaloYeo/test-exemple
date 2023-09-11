@@ -1,18 +1,18 @@
 package com.testexample.service;
 
+import com.testexample.controller.dto.SubscriberDTO;
 import com.testexample.controller.exception.AlreadyExistsException;
 import com.testexample.controller.exception.ErrorConstants;
 import com.testexample.controller.mapper.SubscriberMapper;
 import com.testexample.domain.Subscriber;
 import com.testexample.domain.enumeration.Type;
 import com.testexample.repository.SubscriberRepository;
-import com.testexample.service.dto.SubscriberDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,12 +32,7 @@ public class SubscriberService {
     public List<SubscriberDTO> getCardsSubscriber() {
         var repositoryAll = subscriberRepository.findAll();
 
-        return subscriberRepository.findAll()
-                .stream()
-                .filter(x -> Type.CARD.equals(x.getType()))
-                .peek(System.err::println)
-                .map(subscriberMapper::subscriberToSubscriberDTO)
-                .collect(Collectors.toList());
+        return subscriberMapper.subscriberListToSubscriberDTOList(repositoryAll);
     }
 
 

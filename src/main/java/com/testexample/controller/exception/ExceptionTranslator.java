@@ -3,9 +3,7 @@ package com.testexample.controller.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -14,8 +12,8 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.persistence.EntityNotFoundException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,8 +36,8 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
 
 
     @Override
-    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-
+    public  ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode
+        status, WebRequest request) {
         var errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -49,16 +47,15 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
                         .objectName(c.getClass().getName()).build())
                 .collect(Collectors.toList());
 
-        var apiError = ApiError.builder()
-                .status(status)
-                .message("errors")
-                .path(ErrorConstants.DEFAULT_TYPE.getPath())
-                .errors(errors).build();
-        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, "");
+        problemDetail.setTitle("error");
+        problemDetail.setProperty("errors", errors);
+
+        return new ResponseEntity<>(problemDetail, HttpStatus.BAD_REQUEST);
     }
 
     @Override
-    public ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    public ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 
         var errors = ex.getSupportedHttpMethods()
                 .stream()
@@ -67,12 +64,11 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
                         .build())
                 .collect(Collectors.toList());
 
-        var apiError = ApiError.builder()
-                .status(status)
-                .message("Method not supported")
-                .path(ErrorConstants.DEFAULT_TYPE.getPath())
-                .errors(errors).build();
-        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, "");
+        problemDetail.setTitle("");
+        problemDetail.setProperty("errors", errors);
+
+        return new ResponseEntity<>(problemDetail, HttpStatus.BAD_REQUEST);
     }
 
 

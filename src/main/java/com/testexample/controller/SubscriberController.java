@@ -1,14 +1,14 @@
 package com.testexample.controller;
 
-import com.testexample.service.dto.SubscriberDTO;
+import com.testexample.controller.dto.SubscriberDTO;
 import com.testexample.service.SubscriberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityNotFoundException;
-import javax.validation.Valid;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
