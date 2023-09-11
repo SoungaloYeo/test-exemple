@@ -80,7 +80,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
 
         var apiError = ApiError.builder()
                 .status(HttpStatus.CONFLICT)
-                .message(ex.getMessage())
+                .message(TestExempleErrorType.CONFLICT_EMAIL.name())
                 .path(requestUri)
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);

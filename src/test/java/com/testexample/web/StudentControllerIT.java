@@ -1,6 +1,8 @@
 package com.testexample.web;
 
 import com.testexample.controller.SubscriberController;
+import com.testexample.controller.exception.ApiError;
+import com.testexample.controller.exception.TestExempleErrorType;
 import com.testexample.domain.Subscriber;
 import com.testexample.domain.enumeration.Type;
 import com.testexample.repository.SubscriberRepository;
@@ -14,6 +16,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -44,6 +47,7 @@ class SubscriberControllerIT extends PostgresSqlDbTestBase{
         subscriberWithCard = Subscriber.builder().email("male@gmail.com").type(Type.CARD).name("Karl").build();
         subscriberWithCash = Subscriber.builder().email("female@gmail.com").type(Type.CASH).name("Max").build();
 
+        subscriberRepository.deleteAll();
         subscriberRepository.save(subscriberWithCard);
         subscriberRepository.save(subscriberWithCash);
 
@@ -55,7 +59,7 @@ class SubscriberControllerIT extends PostgresSqlDbTestBase{
         var responseEntity = restTemplate.getForEntity(HTTP_LOCALHOST + port + BASE_URI, Subscriber[].class);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody().length).isEqualTo(1);
+        assertThat(responseEntity.getBody().length).isEqualTo(2);
 
         var subscribers = responseEntity.getBody();
         assertThat(Arrays.stream(subscribers).findFirst().get())
@@ -66,16 +70,11 @@ class SubscriberControllerIT extends PostgresSqlDbTestBase{
     @Test
     @DisplayName("Create a new subscriber with already existing email")
     void should_fail_creating_subscriber_with_existing_email() {
-        var responseEntity = restTemplate.postForEntity(HTTP_LOCALHOST + port + BASE_URI, subscriberWithCash, Subscriber.class);
+        var responseEntity = restTemplate.postForEntity(HTTP_LOCALHOST + port + BASE_URI, subscriberWithCash, ApiError.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-//        assertThat(responseEntity.getBody().getMessage()).isEqualTo("errors");
+        assertThat(Objects.requireNonNull(responseEntity.getBody()).getMessage()).isEqualTo(TestExempleErrorType.CONFLICT_EMAIL.name());
     }
-//
-//    @Test
-//    @DisplayName("when deleting a none existing subscriber")
-//    void whenDeletingANoneExistingSubscriber() {
-//
-//    }
+
 
 
 }
